@@ -1,9 +1,30 @@
-version: "3"
+version: "3.9"
+
 services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build: ./backend
     ports:
       - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: testuser
+      DB_PASSWORD: testpass
+      DB_NAME: testdb
+    depends_on:
+      - postgres
 
   frontend:
     build: ./frontend
@@ -11,3 +32,6 @@ services:
       - "3000:80"
     depends_on:
       - backend
+
+volumes:
+  pgdata:
