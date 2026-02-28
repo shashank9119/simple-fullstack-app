@@ -10,7 +10,7 @@
 
   <script>
     async function getData() {
-      const res = await fetch("http://3.80.123.158:5000/api/hello");
+      const res = await fetch("/api/hello");
       const data = await res.json();
       document.getElementById("result").innerText = data.message;
     }
