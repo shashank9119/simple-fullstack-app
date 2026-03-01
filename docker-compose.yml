@@ -1,26 +1,32 @@
-version: "3.8"
-
 services:
 
-  backend:
-    build: ./HRM-Backend
-    container_name: backend
-    env_file:
-      - ./HRM-Backend/.env
-    networks:
-      - app-network
+  postgres:
+    image: postgres:15
     restart: always
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    image: 108782069184.dkr.ecr.us-east-1.amazonaws.com/backend:latest
+    environment:
+      DB_HOST: postgres
+      DB_USER: testuser
+      DB_PASSWORD: testpass
+      DB_NAME: testdb
+    depends_on:
+      - postgres
 
   frontend:
-    build: ./HRM-Frontend
-    container_name: frontend
-    networks:
-      - app-network
-    restart: always
+    image: 108782069184.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+    depends_on:
+      - backend
 
   nginx:
     image: nginx:alpine
-    container_name: nginx
     ports:
       - "80:80"
     volumes:
@@ -28,10 +34,6 @@ services:
     depends_on:
       - frontend
       - backend
-    networks:
-      - app-network
-    restart: always
 
-networks:
-  app-network:
-    driver: bridge
+volumes:
+  pgdata:
